@@ -66,7 +66,7 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
 
                   const html = `<span style="color: ${color}; opacity: ${opacity}; margin: 0; padding: 0; background-color: red">${el.el.innerHTML.trim()}</span>`
 
-                  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${elRect.width}" height="${elRect.height}" style="margin: 0; padding: 0"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${html.trim()}</div></foreignObject></svg>`
+                  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${elRect.width}" height="${elRect.height}" style="margin: 0; padding: 0; background-color: blue"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${html.trim()}</div></foreignObject></svg>`
 
                   console.log({ svg })
 

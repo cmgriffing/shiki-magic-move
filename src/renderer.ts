@@ -68,12 +68,17 @@ export class MagicMoveRenderer {
     if (token.content !== '\n') {
       el.textContent = token.content
       el.classList.add(`${CLASS_PREFIX}-item`)
+
+      const text = el.textContent
+      if (!text?.trim().length) {
+        el.style.width = `${text?.length || 0}ch`
+      }
     }
   }
 
   private applyElementStyle(el: HTMLElement, token: KeyedToken) {
-    if (token.htmlStyle)
-      el.setAttribute('style', token.htmlStyle)
+    // if (token.htmlStyle)
+    // el.setAttribute('style', token.htmlStyle)
     if (token.htmlClass)
       el.className = [`${CLASS_PREFIX}-item`, token.htmlClass].join(' ')
     if (token.color)
