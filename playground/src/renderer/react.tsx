@@ -4,6 +4,9 @@ import type { Root } from 'react-dom/client'
 import ReactDOM from 'react-dom/client'
 import { shallowReactive, watch } from 'vue'
 import { interpolate, interpolateColors } from 'remotion'
+import { encode } from 'modern-gif'
+import workerUrl from 'modern-gif/worker?url'
+import html2canvas from 'html2canvas'
 import { ShikiMagicMove } from '../../../src/react'
 import type { RendererFactory, RendererFactoryResult } from './types'
 
@@ -37,12 +40,14 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
         <ShikiMagicMove
           {...props}
           options={{
-            onAnimationStart: (elements, maxContainerDimensions) => {
+            onAnimationStart: async (elements, maxContainerDimensions) => {
               if (elements.length === 0) {
                 return
               }
 
               const container = document.querySelector('.shiki-magic-move-container') as HTMLPreElement
+
+              const canvasFrames: HTMLCanvasElement[] = []
 
               for (let frame = 0; frame <= animationFrames; frame++) {
                 const canvas = document.createElement('canvas')
@@ -52,7 +57,7 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
                 ctx!.fillStyle = container.style.backgroundColor
                 ctx?.fillRect(0, 0, canvas.width, canvas.height)
 
-                elements.forEach((el) => {
+                const elementPromises = elements.map(async (el) => {
                   if (el.el.textContent === 'const') {
                     console.log(el)
                   }
@@ -64,29 +69,51 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
 
                   const elRect = el.el.getBoundingClientRect()
 
-                  const html = `<span style="color: ${color}; opacity: ${opacity}; margin: 0; padding: 0; background-color: red">${el.el.innerHTML.trim()}</span>`
+                  const computedStyle = window.getComputedStyle(el.el)
+                  const fontFamily = computedStyle.getPropertyValue('font-family').replaceAll('"', '\'')
+                  const fontSize = computedStyle.getPropertyValue('font-size')
 
-                  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${elRect.width}" height="${elRect.height}" style="margin: 0; padding: 0; background-color: blue"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${html.trim()}</div></foreignObject></svg>`
+                  const html = `<span style="color: ${color}; opacity: ${opacity}; margin: 0; padding: 0; background-color: transparent; font-family: ${fontFamily}; font-size: ${fontSize}">${el.el.innerHTML.trim()}</span>`
 
-                  console.log({ svg })
+                  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${elRect.width}" height="${elRect.height}" style="margin: 0; padding: 0; background-color: transparent"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${html.trim()}</div></foreignObject></svg>`
+
+                  const intCanvas = await html2canvas(el.el, { canvas, scale: 1 })
 
                   const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
                   const svgObjectUrl = URL.createObjectURL(svgBlob)
 
-                  const tempImg = new Image()
-                  tempImg.style.margin = '0'
-                  tempImg.style.padding = '0'
-                  tempImg.addEventListener('load', () => {
-                    ctx!.drawImage(tempImg, x, y)
-                    URL.revokeObjectURL(svgObjectUrl)
-                  })
-
-                  tempImg.src = svgObjectUrl
+                  // const img = await loadImage(svgObjectUrl)
+                  ctx!.drawImage(intCanvas, x, y)
+                  URL.revokeObjectURL(svgObjectUrl)
                 })
-                setTimeout(() => {
-                  document.body.appendChild(canvas)
-                }, 1000)
+                await Promise.all(elementPromises)
+
+                document.body.appendChild(canvas)
+
+                canvasFrames.push(canvas)
               }
+
+              const gif = await encode({
+                workerUrl,
+                width: canvasFrames[0].width,
+                height: canvasFrames[0].height,
+                frames: canvasFrames.map((canvas) => {
+                  return {
+                    data: canvas.toDataURL(),
+                    delay: 1000 / animationFPS,
+                  }
+                }),
+              })
+
+              const blob = new Blob([gif], { type: 'image/gif' })
+              // window.open(URL.createObjectURL(blob))
+
+              const dataUrl = await blobToDataURL(blob)
+              console.log(dataUrl)
+              const finalGif = document.createElement('img')
+              finalGif.src = dataUrl?.toString() || ''
+
+              document.body.appendChild(finalGif)
             },
           }}
           className={props.class}
@@ -119,4 +146,25 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
       app = undefined
     },
   }
+}
+
+// function loadImage(url: string): Promise<HTMLImageElement> {
+//   return new Promise((resolve, reject) => {
+//     const img = new Image()
+//     img.crossOrigin = 'use-credentials'
+//     img.onload = () => resolve(img)
+//     img.onerror = reject
+//     img.src = url
+//   })
+// }
+
+function blobToDataURL(blob: Blob): Promise<string | ArrayBuffer | null | undefined> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = function (e) {
+      resolve(e.target?.result)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
 }
