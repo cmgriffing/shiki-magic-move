@@ -17,8 +17,9 @@ export const createRendererSolid: RendererFactory = (options): RendererFactoryRe
     const [count, setCounter] = createSignal(0)
 
     createEffect(() => {
-      console.log('Solid effect')
+      console.log('Solid effect', count())
       watch(props, () => {
+        console.log('Solid watch', props.highlighter, props.code)
         // Force Solid to re-render
         setCounter(c => c + 1)
       })
@@ -26,7 +27,8 @@ export const createRendererSolid: RendererFactory = (options): RendererFactoryRe
 
     console.log('Solid rendering', count())
 
-    return <ShikiMagicMove {...props} class={props.class} />
+    return (<ShikiMagicMove {...props} class={`${props.class} rerender-hack-${count()}`} />
+    )
   }
 
   let dispose = () => {}
@@ -41,6 +43,7 @@ export const createRendererSolid: RendererFactory = (options): RendererFactoryRe
     },
 
     update: (payload) => {
+      console.log('Solid update', payload)
       Object.assign(props, payload)
     },
     dispose: () => {

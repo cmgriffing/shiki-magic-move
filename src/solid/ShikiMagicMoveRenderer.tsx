@@ -84,7 +84,7 @@ export function ShikiMagicMoveRenderer(
       <div>
         {isMounted()
           ? undefined
-          : tokens.tokens.map((token) => {
+          : tokens?.tokens.map((token) => {
             if (token.content === '\n')
               return <br />
 

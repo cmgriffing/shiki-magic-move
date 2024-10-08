@@ -14,6 +14,9 @@ importers:
       ohash:
         specifier: ^1.1.3
         version: 1.1.3
+      remotion:
+        specifier: 4.0.217
+        version: 4.0.217(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       solid-js:
         specifier: ^1.9.1
         version: 1.9.1
@@ -3277,6 +3280,12 @@ packages:
   regjsparser@0.10.0:
     resolution: {integrity: sha512-qx+xQGZVsy55CH0a1hiVwHmqjLryfh7wQyF5HO07XJ9f7dQMY/gPQHhlyDkIzJKC+x2fUCpCcUODUUUFrm7SHA==}
     hasBin: true
+
+  remotion@4.0.217:
+    resolution: {integrity: sha512-sVeZJp+19aDleZ8F04XKAJWCQx04BahLI/cDySH54W9pj38tMBQ9pk9Og51ufj4ITfaOGuA6Eg7YVW6Yas5a3g==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -7312,6 +7321,11 @@ snapshots:
   regjsparser@0.10.0:
     dependencies:
       jsesc: 0.5.0
+
+  remotion@4.0.217(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   require-directory@2.1.1: {}
 

@@ -12,6 +12,7 @@ export interface ShikiMagicMoveRendererProps {
   onEnd?: () => void
   className?: string
   style?: React.CSSProperties
+  onAnimationStart?: () => void
 }
 
 /**
