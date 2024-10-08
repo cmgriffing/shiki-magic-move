@@ -53,10 +53,6 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
                 ctx?.fillRect(0, 0, canvas.width, canvas.height)
 
                 elements.forEach((el) => {
-                  if (el.el.textContent === 'const') {
-                    console.log(el)
-                  }
-
                   const x = interpolate(frame, [0, animationFrames], [el.x.start, el.x.end])
                   const y = interpolate(frame, [0, animationFrames], [el.y.start, el.y.end])
                   const opacity = interpolate(frame, [0, animationFrames], [el.opacity.start, el.opacity.end])
@@ -64,11 +60,13 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
 
                   const elRect = el.el.getBoundingClientRect()
 
-                  const html = `<span style="color: ${color}; opacity: ${opacity}; margin: 0; padding: 0; background-color: red">${el.el.innerHTML.trim()}</span>`
+                  const chunkStyles = `font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace; color: ${color}; opacity: ${opacity};`
 
-                  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${elRect.width}" height="${elRect.height}" style="margin: 0; padding: 0; background-color: blue"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${html.trim()}</div></foreignObject></svg>`
-
-                  console.log({ svg })
+                  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${elRect.width}" height="${elRect.height}">
+                    <foreignObject width="100%" height="100%">
+                      <div xmlns="http://www.w3.org/1999/xhtml" style="${chunkStyles}">${el.el.innerHTML}</div>
+                    </foreignObject>
+                  </svg>`
 
                   const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
                   const svgObjectUrl = URL.createObjectURL(svgBlob)
