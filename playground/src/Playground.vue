@@ -353,7 +353,6 @@ watch(
         <div ref="rendererContainer" class="of-auto" />
       </div>
     </div>
-    <!-- <canvas ref="canvas" /> -->
   </div>
 </template>
 

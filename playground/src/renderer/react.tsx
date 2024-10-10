@@ -6,7 +6,6 @@ import { shallowReactive, watch } from 'vue'
 import { interpolate, interpolateColors } from 'remotion'
 import { encode } from 'modern-gif'
 import workerUrl from 'modern-gif/worker?url'
-import html2canvas from 'html2canvas'
 import { ShikiMagicMove } from '../../../src/react'
 import type { RendererFactory, RendererFactoryResult } from './types'
 
@@ -51,7 +50,7 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
 
               for (let frame = 0; frame <= animationFrames; frame++) {
                 const canvas = document.createElement('canvas')
-                const ctx = canvas.getContext('2d')
+                const ctx = canvas.getContext('2d', { alpha: false })
                 canvas.width = maxContainerDimensions?.width || 100
                 canvas.height = maxContainerDimensions?.height || 100
                 ctx!.fillStyle = container.style.backgroundColor
@@ -67,24 +66,14 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
                   const opacity = interpolate(frame, [0, animationFrames], [el.opacity.start, el.opacity.end])
                   const color = interpolateColors(frame, [0, animationFrames], [el.color.start || 'rgba(0,0,0,0)', el.color.end || 'rgba(0,0,0,0)'])
 
-                  const elRect = el.el.getBoundingClientRect()
-
                   const computedStyle = window.getComputedStyle(el.el)
                   const fontFamily = computedStyle.getPropertyValue('font-family').replaceAll('"', '\'')
                   const fontSize = computedStyle.getPropertyValue('font-size')
 
-                  const html = `<span style="color: ${color}; opacity: ${opacity}; margin: 0; padding: 0; background-color: transparent; font-family: ${fontFamily}; font-size: ${fontSize}">${el.el.innerHTML.trim()}</span>`
-
-                  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${elRect.width}" height="${elRect.height}" style="margin: 0; padding: 0; background-color: transparent"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${html.trim()}</div></foreignObject></svg>`
-
-                  const intCanvas = await html2canvas(el.el, { canvas, scale: 1 })
-
-                  const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
-                  const svgObjectUrl = URL.createObjectURL(svgBlob)
-
-                  // const img = await loadImage(svgObjectUrl)
-                  ctx!.drawImage(intCanvas, x, y)
-                  URL.revokeObjectURL(svgObjectUrl)
+                  ctx!.font = `${fontSize} ${fontFamily}`
+                  ctx!.fillStyle = color
+                  ctx!.globalAlpha = opacity
+                  ctx!.fillText(htmlDecode(el.el.innerHTML), x, y)
                 })
                 await Promise.all(elementPromises)
 
@@ -98,8 +87,10 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
                 width: canvasFrames[0].width,
                 height: canvasFrames[0].height,
                 frames: canvasFrames.map((canvas) => {
+                  // const frame = new Frame(canvas)
+                  const ctx = canvas.getContext('2d')
                   return {
-                    data: canvas.toDataURL(),
+                    data: ctx!.getImageData(0, 0, canvas.width, canvas.height),
                     delay: 1000 / animationFPS,
                   }
                 }),
@@ -148,16 +139,6 @@ export const createRendererReact: RendererFactory = (options): RendererFactoryRe
   }
 }
 
-// function loadImage(url: string): Promise<HTMLImageElement> {
-//   return new Promise((resolve, reject) => {
-//     const img = new Image()
-//     img.crossOrigin = 'use-credentials'
-//     img.onload = () => resolve(img)
-//     img.onerror = reject
-//     img.src = url
-//   })
-// }
-
 function blobToDataURL(blob: Blob): Promise<string | ArrayBuffer | null | undefined> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -167,4 +148,10 @@ function blobToDataURL(blob: Blob): Promise<string | ArrayBuffer | null | undefi
     reader.onerror = reject
     reader.readAsDataURL(blob)
   })
+}
+
+function htmlDecode(str: string) {
+  const txt = document.createElement('textarea')
+  txt.innerHTML = str
+  return txt.value
 }

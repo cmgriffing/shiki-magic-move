@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      canvas-to-buffer:
+        specifier: ^4.1.0
+        version: 4.1.0
       diff-match-patch-es:
         specifier: ^0.1.0
         version: 0.1.0
@@ -1814,6 +1817,10 @@ packages:
 
   caniuse-lite@1.0.30001638:
     resolution: {integrity: sha512-5SuJUJ7cZnhPpeLHaH0c/HPAnAHZvS6ElWyHK9GSIbVOQABLzowiI2pjmpvZ1WEbkyz46iFd4UXlOHR5SqgfMQ==}
+
+  canvas-to-buffer@4.1.0:
+    resolution: {integrity: sha512-kN+EulChYR+D+m5JjFowKJniavPJtsCXjBPZ/9iQQNK19J7d8mV23GBwjnvt6S29j7+Dm74wJPXs1fHF/gtmww==}
+    engines: {node: '>=20.12.2', npm: '>=10.5.0'}
 
   chai@5.1.1:
     resolution: {integrity: sha512-pT1ZgP8rPNqUgieVaEY+ryQr6Q4HXNg8Ei9UnLUrjN4IA7dvQC5JB+/kxVcPNDHyBcc/26CXPkbNzq3qwrOEKA==}
@@ -3688,6 +3695,9 @@ packages:
   type-fest@0.8.1:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
+
+  typedarray-to-buffer@4.0.0:
+    resolution: {integrity: sha512-6dOYeZfS3O9RtRD1caom0sMxgK59b27+IwoNy8RDPsmslSGOyU+mpTamlaIW7aNKi90ZQZ9DFaZL3YRoiSCULQ==}
 
   typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
@@ -5696,6 +5706,10 @@ snapshots:
   callsites@3.1.0: {}
 
   caniuse-lite@1.0.30001638: {}
+
+  canvas-to-buffer@4.1.0:
+    dependencies:
+      typedarray-to-buffer: 4.0.0
 
   chai@5.1.1:
     dependencies:
@@ -7738,6 +7752,8 @@ snapshots:
   type-fest@0.6.0: {}
 
   type-fest@0.8.1: {}
+
+  typedarray-to-buffer@4.0.0: {}
 
   typescript@5.5.4: {}
 
