@@ -43,6 +43,7 @@ const input = ref(code.value)
 const highlighter = ref<Highlighter>()
 const isAnimating = ref(false)
 const rendererContainer = ref<HTMLElement>()
+const canvas = ref<HTMLCanvasElement>()
 
 let renderer: RendererFactoryResult
 
@@ -56,12 +57,35 @@ const loadingPromise = shallowRef<Promise<void> | undefined>(
   }),
 )
 
+let start: number
+
+function step(timestamp: number) {
+  if (start === undefined) {
+    start = timestamp
+  }
+
+  if (canvas.value && rendererContainer.value) {
+    const renderingContext = canvas.value.getContext('2d')
+
+    if (renderingContext) {
+      renderingContext.clearRect(0, 0, canvas.value.width, canvas.value.height)
+      // renderingContext.fillStyle = '#fff'
+      // renderingContext.fillRect(0, 0, canvas.value.width, canvas.value.height)
+    }
+  }
+
+  if (isAnimating.value) {
+    requestAnimationFrame(step)
+  }
+}
+
 const rendererOptions: RendererFactoryOptions = {
   onEnd() {
     isAnimating.value = false
   },
   onStart() {
     isAnimating.value = true
+    requestAnimationFrame(step)
   },
 }
 
